@@ -1,34 +1,82 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import './App.css'
+import React, { useEffect } from "react";
+import { connect } from "react-redux";
+import { fetchUsers, fetchUserDetails } from "./app/actions";
+import { PulseLoader } from "react-spinners";
 
-function App() {
-  const [count, setCount] = useState(0)
+function App(props) {
+    useEffect(() => {
+        props.fetchUsers();
+    }, []);
 
-  return (
-    <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </div>
-  )
+    const handleButtonClick = (id) => {
+        props.fetchUserDetails(id);
+    };
+
+    return (
+        <div className="App">
+            <section className="flex flex-col gap-8 items-center justify-center">
+                {props.loading ? (
+                    <PulseLoader color="#fff" />
+                ) : (
+                    <section>
+                        {Object.keys(props.user).length !== 0 ? (
+                            <section className="flex items-center gap-4">
+                                <img
+                                    src={props.user.avatar}
+                                    alt={
+                                        props.user.first_name +
+                                        " " +
+                                        props.user.last_name
+                                    }
+                                    className="border-2 rounded-full h-20 w-20"
+                                />
+                                <div className="text-left">
+                                    <p>
+                                        {props.user.first_name}{" "}
+                                        {props.user.last_name}
+                                    </p>
+                                    <p>{props.user.email}</p>
+                                </div>
+                            </section>
+                        ) : (
+                            <p>Click any of the below button</p>
+                        )}
+                        {props.error && (
+                            <p className="bg-red-200 text-red-600 border-2 border-red-500 rounded-md p-2">
+                                {props.error}
+                            </p>
+                        )}
+                    </section>
+                )}
+                <section className="flex gap-4">
+                    {props.users.map((user) => (
+                        <button
+                            key={user.id}
+                            onClick={() => handleButtonClick(user.id)}
+                        >
+                            {user.id}
+                        </button>
+                    ))}
+                </section>
+            </section>
+        </div>
+    );
 }
 
-export default App
+const mapStateToProps = (state) => {
+    return {
+        users: state.users,
+        user: state.user,
+        loading: state.loading,
+        error: state.error,
+    };
+};
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        fetchUsers: () => dispatch(fetchUsers()),
+        fetchUserDetails: (id) => dispatch(fetchUserDetails(id)),
+    };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
