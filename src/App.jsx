@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { connect } from "react-redux";
 import { fetchUsers, fetchUserDetails } from "./app/actions";
 import { PulseLoader } from "react-spinners";
+import Author from "./components/Author";
 
 function App(props) {
     useEffect(() => {
@@ -59,6 +60,7 @@ function App(props) {
                     ))}
                 </section>
             </section>
+            <Author />
         </div>
     );
 }
